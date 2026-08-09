@@ -12,7 +12,11 @@ dependencies = [
  "openai>=2.30.0",
  "anthropic>=0.70.0",
  "blurhash-python",
- "openai-agents>=0.17.2",
+ # The [litellm] extra is what the Gemini provider runs on: LiteLLM carries the
+ # Gemini-specific handling (thought signatures, tool-call id constraints) that
+ # multi-turn function calling needs. Declared explicitly rather than relying on
+ # another installed app happening to pull litellm in.
+ "openai-agents[litellm]>=0.17.2",
  "markitdown",
  "pandas",
  "google-cloud-documentai"

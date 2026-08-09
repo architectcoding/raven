@@ -29,6 +29,10 @@ export interface RavenSettings{
 	enable_anthropic_services?: 0 | 1
 	/**	Anthropic API Key : Password	*/
 	anthropic_api_key?: string
+	/**	Enable Google Gemini : Check	*/
+	enable_gemini_services?: 0 | 1
+	/**	Gemini API Key : Password	*/
+	gemini_api_key?: string
 	/**	Automatically Create a Channel for each Department : Check - If checked, a channel will be created in Raven for each department and employees will be synced with Raven Users.	*/
 	auto_create_department_channel?: 0 | 1
 	/**	Department Channel Type : Select	*/

@@ -31,6 +31,10 @@ export interface RavenSettings{
 	enable_anthropic_services?: 0 | 1
 	/**	Anthropic API Key : Password	*/
 	anthropic_api_key?: string
+	/**	Enable Google Gemini : Check	*/
+	enable_gemini_services?: 0 | 1
+	/**	Gemini API Key : Password	*/
+	gemini_api_key?: string
 	/**	Enable Local LLM : Check	*/
 	enable_local_llm?: 0 | 1
 	/**	Local LLM Provider : Select	*/

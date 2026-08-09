@@ -37,7 +37,11 @@ def get_anthropic_models() -> list[dict]:
 	import anthropic
 
 	raven_settings = frappe.get_cached_doc("Raven Settings")
-	api_key = raven_settings.get_password("anthropic_api_key")
+	# raise_exception=False: get_password() throws when the field was never set,
+	# so the plain call turned "no key configured yet" — an ordinary state while
+	# someone is still filling the form — into a logged error every time the bot
+	# form asked for the model list.
+	api_key = raven_settings.get_password("anthropic_api_key", raise_exception=False)
 	if not api_key:
 		return []
 

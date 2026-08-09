@@ -19,11 +19,12 @@ const AIFeaturesBotForm = (props: Props) => {
 
     const isLocalLLM = modelProvider === 'Local LLM'
     const isAnthropic = modelProvider === 'Anthropic'
+    const isGemini = modelProvider === 'Gemini'
     const isOpenAI = !modelProvider || modelProvider === 'OpenAI'
 
     return (
         <Stack gap='4'>
-            {!isLocalLLM && openAIAssistantID && (
+            {isOpenAI && openAIAssistantID && (
                 <Stack maxWidth={'480px'}>
                     <Box>
                         <Label htmlFor='openai_assistant_id'>OpenAI Assistant ID</Label>
@@ -139,14 +140,15 @@ const AIFeaturesBotForm = (props: Props) => {
                 </>
             )}
 
-            {isLocalLLM && (
+            {(isLocalLLM || isAnthropic || isGemini) && (
                 <Callout.Root size="1">
                     <Callout.Icon>
                         <BiInfoCircle />
                     </Callout.Icon>
                     <Callout.Text>
-                        Currently, code interpreter features are not available for Local LLM providers.
-                        These features require OpenAI's infrastructure.
+                        File search and code interpreter are not available on this provider.
+                        They are OpenAI-hosted services with no equivalent elsewhere &mdash;
+                        the agent's Frappe document tools work as normal.
                     </Callout.Text>
                 </Callout.Root>
             )}
@@ -238,15 +240,16 @@ const ModelProviderSelector = () => {
     const hasOpenAI = ravenSettings?.enable_openai_services
     const hasLocalLLM = ravenSettings?.enable_local_llm
     const hasAnthropic = ravenSettings?.enable_anthropic_services
+    const hasGemini = ravenSettings?.enable_gemini_services
 
-    if (!hasOpenAI && !hasLocalLLM && !hasAnthropic) {
+    if (!hasOpenAI && !hasLocalLLM && !hasAnthropic && !hasGemini) {
         return (
             <Callout.Root color="red" size="1">
                 <Callout.Icon>
                     <BiInfoCircle />
                 </Callout.Icon>
                 <Callout.Text>
-                    No AI providers are configured. Please configure OpenAI, Anthropic or Local LLM in AI Settings.
+                    No AI providers are configured. Please configure OpenAI, Anthropic, Gemini or Local LLM in AI Settings.
                 </Callout.Text>
             </Callout.Root>
         )
@@ -260,16 +263,17 @@ const ModelProviderSelector = () => {
                     rules={{
                         required: is_ai_bot ? "Please select a model provider" : false
                     }}
-                    defaultValue={hasOpenAI ? 'OpenAI' : hasAnthropic ? 'Anthropic' : hasLocalLLM ? 'Local LLM' : 'OpenAI'}
+                    defaultValue={hasOpenAI ? 'OpenAI' : hasAnthropic ? 'Anthropic' : hasGemini ? 'Gemini' : hasLocalLLM ? 'Local LLM' : 'OpenAI'}
                     render={({ field }) => (
                         <Select.Root
-                            value={field.value || (hasOpenAI ? 'OpenAI' : hasAnthropic ? 'Anthropic' : 'Local LLM')}
+                            value={field.value || (hasOpenAI ? 'OpenAI' : hasAnthropic ? 'Anthropic' : hasGemini ? 'Gemini' : 'Local LLM')}
                             name={field.name}
                             onValueChange={(value) => field.onChange(value)}>
                             <Select.Trigger placeholder='Select Provider' className='w-full' />
                             <Select.Content>
                                 {hasOpenAI ? <Select.Item value='OpenAI'>OpenAI</Select.Item> : null}
                                 {hasAnthropic ? <Select.Item value='Anthropic'>Anthropic (Claude)</Select.Item> : null}
+                                {hasGemini ? <Select.Item value='Gemini'>Google Gemini</Select.Item> : null}
                                 {hasLocalLLM ? <Select.Item value='Local LLM'>Local LLM</Select.Item> : null}
                             </Select.Content>
                         </Select.Root>
@@ -299,6 +303,12 @@ const ModelSelector = () => {
         revalidateIfStale: false
     })
 
+    // Fetch Gemini models
+    const { data: geminiModels } = useFrappeGetCall('raven.api.ai_features.get_gemini_available_models', undefined, modelProvider === 'Gemini' ? undefined : null, {
+        revalidateOnFocus: false,
+        revalidateIfStale: false
+    })
+
     // Fetch Local LLM models
     const { data: localModelData } = useFrappeGetCall<{
         message: {
@@ -322,12 +332,16 @@ const ModelSelector = () => {
         ? localModels
         : modelProvider === 'Anthropic'
             ? (anthropicModels?.message || [])
-            : openaiModels?.message || []
+            : modelProvider === 'Gemini'
+                ? (geminiModels?.message || [])
+                : openaiModels?.message || []
     const defaultModel = modelProvider === 'Local LLM'
         ? (localModels[0] || 'default-model')
         : modelProvider === 'Anthropic'
             ? 'claude-opus-5'
-            : 'gpt-4o'
+            : modelProvider === 'Gemini'
+                ? 'gemini-2.5-flash'
+                : 'gpt-4o'
 
     // Filter out empty strings from models
     const validModels = models.filter(model => model && model.trim() !== '')
@@ -363,7 +377,9 @@ const ModelSelector = () => {
             </Box>
             {errors.model && <ErrorText>{errors.model?.message}</ErrorText>}
             <HelperText>
-                {modelProvider === 'Local LLM'
+                {modelProvider === 'Gemini'
+                    ? 'Models are listed live from Google. Flash is the cheapest and is usually enough for document lookups; Pro is stronger on multi-step reasoning.'
+                    : modelProvider === 'Local LLM'
                     ? 'Select a model available on your local LLM server.'
                     : 'The model should be compatible with the OpenAI Assistants API. We recommend using models in the GPT-4 family for best results.'}
             </HelperText>

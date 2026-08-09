@@ -21,6 +21,8 @@
   "openai_project_id",
   "enable_anthropic_services",
   "anthropic_api_key",
+  "enable_gemini_services",
+  "gemini_api_key",
   "column_break_occp",
   "enable_local_llm",
   "local_llm_provider",
@@ -165,6 +167,19 @@
    "fieldname": "anthropic_api_key",
    "fieldtype": "Password",
    "label": "Anthropic API Key"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_gemini_services",
+   "fieldtype": "Check",
+   "label": "Enable Google Gemini"
+  },
+  {
+   "depends_on": "enable_gemini_services",
+   "fieldname": "gemini_api_key",
+   "fieldtype": "Password",
+   "label": "Gemini API Key",
+   "description": "An AI Studio API key. Not the same credential as the Google service account used for Vision and Document AI below."
   },
   {
    "fieldname": "column_break_occp",

@@ -110,6 +110,7 @@ const AISettings = () => {
                                 <Tabs.List>
                                     <Tabs.Trigger value="openai">OpenAI</Tabs.Trigger>
                                     <Tabs.Trigger value="anthropic">Anthropic</Tabs.Trigger>
+                                    <Tabs.Trigger value="gemini">Gemini</Tabs.Trigger>
                                     <Tabs.Trigger value="local">Local LLM</Tabs.Trigger>
                                 </Tabs.List>
 
@@ -120,6 +121,10 @@ const AISettings = () => {
 
                                     <Tabs.Content value="anthropic">
                                         <AnthropicSection />
+                                    </Tabs.Content>
+
+                                    <Tabs.Content value="gemini">
+                                        <GeminiSection />
                                     </Tabs.Content>
 
                                     <Tabs.Content value="local">
@@ -134,6 +139,57 @@ const AISettings = () => {
         </PageContainer>
     )
 }
+const GeminiSection = () => {
+
+    const { watch, control, register, formState: { errors } } = useFormContext<RavenSettings>()
+
+    const enableGemini = watch('enable_gemini_services')
+
+    return (
+        <Flex direction="column" gap="4">
+            <Flex direction={'column'} gap='2'>
+                <Text as="label" size="2">
+                    <Flex gap="2">
+                        <Controller
+                            control={control}
+                            name='enable_gemini_services'
+                            render={({ field }) => (
+                                <Checkbox
+                                    checked={field.value ? true : false}
+                                    name={field.name}
+                                    disabled={field.disabled}
+                                    onCheckedChange={(v) => field.onChange(v ? 1 : 0)}
+                                />
+                            )} />
+                        Enable Google Gemini
+                    </Flex>
+                </Text>
+                <HelperText>
+                    Lets agents run on Gemini. This is an AI Studio API key &mdash; not the Google service account used for Vision and Document AI.
+                </HelperText>
+            </Flex>
+
+            {enableGemini ? (
+                <Box>
+                    <Label htmlFor='gemini_api_key' isRequired>Gemini API Key</Label>
+                    <TextField.Root
+                        className={'w-48 sm:w-96'}
+                        id='gemini_api_key'
+                        autoComplete='off'
+                        type='password'
+                        placeholder='AIza************************'
+                        {...register('gemini_api_key', {
+                            required: enableGemini ? "Please enter your Gemini API key" : false
+                        })}
+                        aria-invalid={errors.gemini_api_key ? 'true' : 'false'}
+                    />
+                    {errors?.gemini_api_key && <ErrorText>{errors.gemini_api_key?.message}</ErrorText>}
+                </Box>
+            ) : null}
+        </Flex>
+    )
+}
+
 const AnthropicSection = () => {
 
     const { watch, control, register, formState: { errors } } = useFormContext<RavenSettings>()

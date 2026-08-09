@@ -65,6 +65,18 @@ class RavenAgentManager:
 			self.client = client
 			return
 
+		if self.bot_doc.model_provider == "Gemini":
+			# Not the Local LLM branch below, even though Google publishes an
+			# OpenAI-compatible endpoint: that branch forces the hand-rolled
+			# fallback and bypasses the Agents loop. LiteLLM keeps the real loop
+			# and brings Gemini's thought-signature handling with it.
+			from raven.ai.gemini_client import get_gemini_api_key
+			from raven.ai.gemini_model import GeminiProvider
+
+			self.provider = GeminiProvider(api_key=get_gemini_api_key())
+			self.client = None
+			return
+
 		if self.bot_doc.model_provider == "Local LLM" and self.settings.enable_local_llm:
 			# Client for local LLM
 			if not self.settings.local_llm_api_url:
@@ -364,7 +376,7 @@ class RavenAgentManager:
 		# Anthropic is grouped with Local LLM here because the hosted tools below
 		# are OpenAI-side services, not a chat-completions capability — Claude has
 		# no equivalent, so passing them through would fail the request.
-		if self.bot_doc.model_provider in ("Local LLM", "Anthropic"):
+		if self.bot_doc.model_provider in ("Local LLM", "Anthropic", "Gemini"):
 			# Filter out hosted tools that are not supported with ChatCompletions API
 			filtered_tools = []
 			hosted_tool_types = (
@@ -538,10 +550,11 @@ async def handle_ai_request_async(
 			# Handle both TypeError and NotFoundError (404) with fallback
 			should_fallback = False
 
-			# The fallback below is a direct client.chat.completions.create() call.
-			# There is no such endpoint on Anthropic, so for Claude a failure has to
-			# surface as itself rather than be retried into a second, worse error.
-			if bot.model_provider == "Anthropic":
+			# The fallback below is a direct client.chat.completions.create() call
+			# against self.client. Neither the Anthropic nor the Gemini provider has
+			# such a client, so a failure has to surface as itself rather than be
+			# retried into a second, more confusing error.
+			if bot.model_provider in ("Anthropic", "Gemini"):
 				raise
 
 			if isinstance(e, TypeError) and "NoneType" in str(e) and "not iterable" in str(e):
