@@ -22,15 +22,17 @@ const AgentAITab = () => {
 
     const isLocalLLM = modelProvider === "Local LLM"
     const isAnthropic = modelProvider === "Anthropic"
+    const isGemini = modelProvider === "Gemini"
     const isOpenAI = !modelProvider || modelProvider === "OpenAI"
 
     const hasOpenAI = ravenSettings?.enable_openai_services === 1
     const hasAnthropic = ravenSettings?.enable_anthropic_services === 1
+    const hasGemini = ravenSettings?.enable_gemini_services === 1
     const hasLocalLLM = ravenSettings?.enable_local_llm === 1
 
     return (
         <div className="flex flex-col gap-4">
-            {!isLocalLLM && openAIAssistantID && (
+            {isOpenAI && openAIAssistantID && (
                 <DataField
                     name="openai_assistant_id"
                     label={_("OpenAI Assistant ID")}
@@ -39,10 +41,10 @@ const AgentAITab = () => {
                 />
             )}
 
-            {isAiBot && !hasOpenAI && !hasAnthropic && !hasLocalLLM ? (
+            {isAiBot && !hasOpenAI && !hasAnthropic && !hasGemini && !hasLocalLLM ? (
                 <Alert theme="red">
                     <AlertDescription>
-                        {_("No AI providers are configured. Please configure OpenAI, Anthropic or Local LLM in AI Settings.")}
+                        {_("No AI providers are configured. Please configure OpenAI, Anthropic, Gemini or Local LLM in AI Settings.")}
                     </AlertDescription>
                 </Alert>
             ) : (
@@ -90,10 +92,10 @@ const AgentAITab = () => {
                 </>
             )}
 
-            {isLocalLLM && (
+            {(isLocalLLM || isAnthropic || isGemini) && (
                 <Alert theme="blue">
                     <AlertDescription>
-                        {_("Currently, code interpreter features are not available for Local LLM providers. These features require OpenAI's infrastructure.")}
+                        {_("File search and code interpreter are not available on this provider. They are OpenAI-hosted services with no equivalent elsewhere — the agent's Frappe document tools work as normal.")}
                     </AlertDescription>
                 </Alert>
             )}

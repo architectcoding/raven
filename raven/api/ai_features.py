@@ -80,8 +80,21 @@ def get_anthropic_available_models():
 	try:
 		return [m["id"] for m in get_anthropic_models()]
 	except Exception as e:
+		# A key that is present but rejected is worth logging; a key that is
+		# simply absent is handled in get_anthropic_models() and returns [].
 		frappe.log_error(f"Could not list Anthropic models: {e}", "Anthropic Models Error")
 		return []
+
+
+@frappe.whitelist()
+def get_gemini_available_models():
+	"""
+	API to get the available Google Gemini models
+	"""
+	frappe.has_permission(doctype="Raven Bot", ptype="read", throw=True)
+	from raven.ai.gemini_client import get_gemini_models
+
+	return get_gemini_models()
 
 
 @frappe.whitelist()

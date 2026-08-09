@@ -23,6 +23,7 @@ const AISettingsFields = () => {
     const aiEnabled = useWatch({ control, name: "enable_ai_integration" })
     const openaiEnabled = useWatch({ control, name: "enable_openai_services" })
     const anthropicEnabled = useWatch({ control, name: "enable_anthropic_services" })
+    const geminiEnabled = useWatch({ control, name: "enable_gemini_services" })
     const localEnabled = useWatch({ control, name: "enable_local_llm" })
     const localProvider = useWatch({ control, name: "local_llm_provider" })
     const localLLMUrl = useWatch({ control, name: "local_llm_api_url" })
@@ -129,6 +130,25 @@ const AISettingsFields = () => {
                     ) : null}
                     <Separator />
 
+                    {/* Gemini */}
+                    <SwitchFormField
+                        name="enable_gemini_services"
+                        label={_("Enable Google Gemini")}
+                        formDescription={_("Lets agents run on Gemini. This is an AI Studio API key — not the Google service account used for Vision and Document AI.")}
+                    />
+                    {geminiEnabled ? (
+                        <div className="flex flex-col gap-4 pl-1">
+                            <DataField
+                                name="gemini_api_key"
+                                label={_("Gemini API Key")}
+                                isRequired
+                                rules={{ required: _("Please enter your Gemini API key") }}
+                                inputProps={{ type: "password", placeholder: "AIza************************", autoComplete: "off" }}
+                            />
+                        </div>
+                    ) : null}
+                    <Separator />
+
                     {/* Local LLM */}
                     <SwitchFormField
                         name="enable_local_llm"
@@ -191,7 +211,7 @@ const AISettingsFields = () => {
     )
 }
 
-/** AI Settings — configure AI providers (OpenAI / Anthropic / local LLM); provider sections show only when AI integration is on. */
+/** AI Settings — configure AI providers (OpenAI / Anthropic / Gemini / local LLM); provider sections show only when AI integration is on. */
 export const AISettings = () => (
     <AdminSettingsForm
         title={_("AI Settings")}

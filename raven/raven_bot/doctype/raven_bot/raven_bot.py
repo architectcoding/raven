@@ -43,7 +43,7 @@ class RavenBot(Document):
 		is_ai_bot: DF.Check
 		is_standard: DF.Check
 		model: DF.Data | None
-		model_provider: DF.Literal["OpenAI", "Local LLM", "Anthropic"]
+		model_provider: DF.Literal["OpenAI", "Local LLM", "Anthropic", "Gemini"]
 		module: DF.Link | None
 		openai_assistant_id: DF.Data | None
 		openai_vector_store_id: DF.Data | None
