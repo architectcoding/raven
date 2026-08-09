@@ -25,6 +25,10 @@ export interface RavenSettings{
 	openai_api_key?: string
 	/**	OpenAI Project ID : Data - If not set, the integration will use the default project	*/
 	openai_project_id?: string
+	/**	Enable Anthropic (Claude) : Check	*/
+	enable_anthropic_services?: 0 | 1
+	/**	Anthropic API Key : Password	*/
+	anthropic_api_key?: string
 	/**	Automatically Create a Channel for each Department : Check - If checked, a channel will be created in Raven for each department and employees will be synced with Raven Users.	*/
 	auto_create_department_channel?: 0 | 1
 	/**	Department Channel Type : Select	*/

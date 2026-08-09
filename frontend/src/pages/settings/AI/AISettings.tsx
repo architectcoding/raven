@@ -109,12 +109,17 @@ const AISettings = () => {
                             <Tabs.Root defaultValue="openai">
                                 <Tabs.List>
                                     <Tabs.Trigger value="openai">OpenAI</Tabs.Trigger>
+                                    <Tabs.Trigger value="anthropic">Anthropic</Tabs.Trigger>
                                     <Tabs.Trigger value="local">Local LLM</Tabs.Trigger>
                                 </Tabs.List>
 
                                 <Box mt="4">
                                     <Tabs.Content value="openai">
                                         <OpenAISection />
+                                    </Tabs.Content>
+
+                                    <Tabs.Content value="anthropic">
+                                        <AnthropicSection />
                                     </Tabs.Content>
 
                                     <Tabs.Content value="local">
@@ -129,6 +134,57 @@ const AISettings = () => {
         </PageContainer>
     )
 }
+const AnthropicSection = () => {
+
+    const { watch, control, register, formState: { errors } } = useFormContext<RavenSettings>()
+
+    const enableAnthropic = watch('enable_anthropic_services')
+
+    return (
+        <Flex direction="column" gap="4">
+            <Flex direction={'column'} gap='2'>
+                <Text as="label" size="2">
+                    <Flex gap="2">
+                        <Controller
+                            control={control}
+                            name='enable_anthropic_services'
+                            render={({ field }) => (
+                                <Checkbox
+                                    checked={field.value ? true : false}
+                                    name={field.name}
+                                    disabled={field.disabled}
+                                    onCheckedChange={(v) => field.onChange(v ? 1 : 0)}
+                                />
+                            )} />
+                        Enable Anthropic (Claude)
+                    </Flex>
+                </Text>
+                <HelperText>
+                    Lets agents run on Claude. Bots choose their provider individually, so this can be enabled alongside OpenAI.
+                </HelperText>
+            </Flex>
+
+            {enableAnthropic ? (
+                <Box>
+                    <Label htmlFor='anthropic_api_key' isRequired>Anthropic API Key</Label>
+                    <TextField.Root
+                        className={'w-48 sm:w-96'}
+                        id='anthropic_api_key'
+                        autoComplete='off'
+                        type='password'
+                        placeholder='sk-ant-****************'
+                        {...register('anthropic_api_key', {
+                            required: enableAnthropic ? "Please enter your Anthropic API key" : false
+                        })}
+                        aria-invalid={errors.anthropic_api_key ? 'true' : 'false'}
+                    />
+                    {errors?.anthropic_api_key && <ErrorText>{errors.anthropic_api_key?.message}</ErrorText>}
+                </Box>
+            ) : null}
+        </Flex>
+    )
+}
+
 const OpenAISection = () => {
 
     const { data: openaiVersion } = useFrappeGetCall<{ message: string }>('raven.api.ai_features.get_open_ai_version')

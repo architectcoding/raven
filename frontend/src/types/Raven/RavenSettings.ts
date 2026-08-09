@@ -27,6 +27,10 @@ export interface RavenSettings{
 	openai_api_key?: string
 	/**	OpenAI Project ID : Data - If not set, the integration will use the default project	*/
 	openai_project_id?: string
+	/**	Enable Anthropic (Claude) : Check	*/
+	enable_anthropic_services?: 0 | 1
+	/**	Anthropic API Key : Password	*/
+	anthropic_api_key?: string
 	/**	Enable Local LLM : Check	*/
 	enable_local_llm?: 0 | 1
 	/**	Local LLM Provider : Select	*/

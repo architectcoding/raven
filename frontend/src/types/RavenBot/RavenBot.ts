@@ -27,7 +27,7 @@ export interface RavenBot{
 	/**	Is AI Bot? : Check	*/
 	is_ai_bot?: 0 | 1
 	/**	Model Provider : Select	*/
-	model_provider?: "OpenAI" | "Local LLM"
+	model_provider?: "OpenAI" | "Local LLM" | "Anthropic"
 	/**	Model : Data - For OpenAI: gpt-4o, gpt-4, etc. For Local LLM: use model name from /v1/models endpoint	*/
 	model?: string
 	/**	Temperature : Float - What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.	*/
@@ -35,7 +35,9 @@ export interface RavenBot{
 	/**	Debug Mode : Check - If enabled, stack traces of errors will be sent as messages by the bot 	*/
 	debug_mode?: 0 | 1
 	/**	Reasoning Effort : Select - Only applicable for OpenAI o-series models	*/
-	reasoning_effort?: "low" | "medium" | "high"
+	reasoning_effort?: "low" | "medium" | "high" | "xhigh" | "max"
+	/**	Max Tokens : Int	*/
+	max_tokens?: number
 	/**	Top P : Float - An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
 
 We generally recommend altering this or temperature but not both.	*/

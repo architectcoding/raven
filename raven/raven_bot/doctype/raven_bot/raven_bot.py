@@ -43,12 +43,13 @@ class RavenBot(Document):
 		is_ai_bot: DF.Check
 		is_standard: DF.Check
 		model: DF.Data | None
-		model_provider: DF.Literal["OpenAI", "Local LLM"]
+		model_provider: DF.Literal["OpenAI", "Local LLM", "Anthropic"]
 		module: DF.Link | None
 		openai_assistant_id: DF.Data | None
 		openai_vector_store_id: DF.Data | None
 		raven_user: DF.Link | None
-		reasoning_effort: DF.Literal["low", "medium", "high"]
+		reasoning_effort: DF.Literal["low", "medium", "high", "xhigh", "max"]
+		max_tokens: DF.Int
 		temperature: DF.Float
 		top_p: DF.Float
 		use_google_document_parser: DF.Check

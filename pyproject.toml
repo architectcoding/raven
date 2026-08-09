@@ -10,6 +10,7 @@ dynamic = ["version"]
 dependencies = [
  "linkpreview~=0.9.0",
  "openai>=2.30.0",
+ "anthropic>=0.70.0",
  "blurhash-python",
  "openai-agents>=0.17.2",
  "markitdown",

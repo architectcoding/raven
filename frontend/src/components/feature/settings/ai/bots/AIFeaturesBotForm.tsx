@@ -18,6 +18,7 @@ const AIFeaturesBotForm = (props: Props) => {
     const top_p = watch('top_p')
 
     const isLocalLLM = modelProvider === 'Local LLM'
+    const isAnthropic = modelProvider === 'Anthropic'
     const isOpenAI = !modelProvider || modelProvider === 'OpenAI'
 
     return (
@@ -43,7 +44,7 @@ const AIFeaturesBotForm = (props: Props) => {
                 <ModelSelector />
             </HStack>
 
-            {isOpenAI && <ReasoningEffortSelector />}
+            {(isOpenAI || isAnthropic) && <ReasoningEffortSelector />}
 
             <Separator className='w-full' />
 
@@ -236,15 +237,16 @@ const ModelProviderSelector = () => {
 
     const hasOpenAI = ravenSettings?.enable_openai_services
     const hasLocalLLM = ravenSettings?.enable_local_llm
+    const hasAnthropic = ravenSettings?.enable_anthropic_services
 
-    if (!hasOpenAI && !hasLocalLLM) {
+    if (!hasOpenAI && !hasLocalLLM && !hasAnthropic) {
         return (
             <Callout.Root color="red" size="1">
                 <Callout.Icon>
                     <BiInfoCircle />
                 </Callout.Icon>
                 <Callout.Text>
-                    No AI providers are configured. Please configure OpenAI or Local LLM in AI Settings.
+                    No AI providers are configured. Please configure OpenAI, Anthropic or Local LLM in AI Settings.
                 </Callout.Text>
             </Callout.Root>
         )
@@ -258,15 +260,16 @@ const ModelProviderSelector = () => {
                     rules={{
                         required: is_ai_bot ? "Please select a model provider" : false
                     }}
-                    defaultValue={hasOpenAI ? 'OpenAI' : hasLocalLLM ? 'Local LLM' : 'OpenAI'}
+                    defaultValue={hasOpenAI ? 'OpenAI' : hasAnthropic ? 'Anthropic' : hasLocalLLM ? 'Local LLM' : 'OpenAI'}
                     render={({ field }) => (
                         <Select.Root
-                            value={field.value || (hasOpenAI ? 'OpenAI' : 'Local LLM')}
+                            value={field.value || (hasOpenAI ? 'OpenAI' : hasAnthropic ? 'Anthropic' : 'Local LLM')}
                             name={field.name}
                             onValueChange={(value) => field.onChange(value)}>
                             <Select.Trigger placeholder='Select Provider' className='w-full' />
                             <Select.Content>
                                 {hasOpenAI ? <Select.Item value='OpenAI'>OpenAI</Select.Item> : null}
+                                {hasAnthropic ? <Select.Item value='Anthropic'>Anthropic (Claude)</Select.Item> : null}
                                 {hasLocalLLM ? <Select.Item value='Local LLM'>Local LLM</Select.Item> : null}
                             </Select.Content>
                         </Select.Root>
@@ -285,6 +288,13 @@ const ModelSelector = () => {
 
     // Fetch OpenAI models
     const { data: openaiModels } = useFrappeGetCall('raven.api.ai_features.get_openai_available_models', undefined, modelProvider === 'OpenAI' || !modelProvider ? undefined : null, {
+        revalidateOnFocus: false,
+        revalidateIfStale: false
+    })
+
+    // Fetch Anthropic models — asked of the API so a newly released Claude
+    // model is selectable without shipping a new Raven build.
+    const { data: anthropicModels } = useFrappeGetCall('raven.api.ai_features.get_anthropic_available_models', undefined, modelProvider === 'Anthropic' ? undefined : null, {
         revalidateOnFocus: false,
         revalidateIfStale: false
     })
@@ -308,10 +318,16 @@ const ModelSelector = () => {
 
     if (!is_ai_bot) return null
 
-    const models: string[] = modelProvider === 'Local LLM' ? localModels : openaiModels?.message || []
+    const models: string[] = modelProvider === 'Local LLM'
+        ? localModels
+        : modelProvider === 'Anthropic'
+            ? (anthropicModels?.message || [])
+            : openaiModels?.message || []
     const defaultModel = modelProvider === 'Local LLM'
         ? (localModels[0] || 'default-model')
-        : 'gpt-4o'
+        : modelProvider === 'Anthropic'
+            ? 'claude-opus-5'
+            : 'gpt-4o'
 
     // Filter out empty strings from models
     const validModels = models.filter(model => model && model.trim() !== '')
@@ -359,16 +375,18 @@ const ReasoningEffortSelector = () => {
     const { control, watch } = useFormContext<RavenBot>()
     const model = watch('model')
     const is_ai_bot = watch('is_ai_bot')
+    const isAnthropicProvider = watch('model_provider') === 'Anthropic'
 
     if (!model) return null
 
-    if (model.startsWith("o")) {
+    // OpenAI only exposes effort on its o-series; every Claude model takes it.
+    if (isAnthropicProvider || model.startsWith("o")) {
         return <Stack maxWidth={'480px'}>
             <Box>
                 <Label htmlFor='reasoning_effort' isRequired>Reasoning Effort</Label>
                 <Controller control={control}
                     rules={{
-                        required: model.startsWith("o") && is_ai_bot ? true : false
+                        required: (isAnthropicProvider || model.startsWith("o")) && is_ai_bot ? true : false
                     }}
                     defaultValue='medium'
                     name='reasoning_effort' render={({ field }) => (
@@ -381,12 +399,16 @@ const ReasoningEffortSelector = () => {
                                 <Select.Item value='low'>Low</Select.Item>
                                 <Select.Item value='medium'>Medium</Select.Item>
                                 <Select.Item value='high'>High</Select.Item>
+                                {isAnthropicProvider && <Select.Item value='xhigh'>Extra High</Select.Item>}
+                                {isAnthropicProvider && <Select.Item value='max'>Max</Select.Item>}
                             </Select.Content>
                         </Select.Root>
                     )} />
             </Box>
             <HelperText>
-                The reasoning effort will be used to determine the depth of the reasoning process. This is only applicable for OpenAI's o-series models.
+                {isAnthropicProvider
+                    ? "How hard Claude thinks before answering. 'High' suits most work; 'Extra High' is the better default for tool-heavy agents."
+                    : "The reasoning effort will be used to determine the depth of the reasoning process. This is only applicable for OpenAI's o-series models."}
             </HelperText>
         </Stack>
     }

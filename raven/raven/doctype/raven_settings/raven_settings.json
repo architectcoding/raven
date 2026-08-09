@@ -19,6 +19,8 @@
   "openai_organisation_id",
   "openai_api_key",
   "openai_project_id",
+  "enable_anthropic_services",
+  "anthropic_api_key",
   "column_break_occp",
   "enable_local_llm",
   "local_llm_provider",
@@ -151,6 +153,18 @@
    "fieldname": "openai_project_id",
    "fieldtype": "Data",
    "label": "OpenAI Project ID"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_anthropic_services",
+   "fieldtype": "Check",
+   "label": "Enable Anthropic (Claude)"
+  },
+  {
+   "depends_on": "enable_anthropic_services",
+   "fieldname": "anthropic_api_key",
+   "fieldtype": "Password",
+   "label": "Anthropic API Key"
   },
   {
    "fieldname": "column_break_occp",
