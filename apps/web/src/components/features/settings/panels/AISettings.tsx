@@ -24,6 +24,7 @@ const AISettingsFields = () => {
     const openaiEnabled = useWatch({ control, name: "enable_openai_services" })
     const anthropicEnabled = useWatch({ control, name: "enable_anthropic_services" })
     const geminiEnabled = useWatch({ control, name: "enable_gemini_services" })
+    const deepseekEnabled = useWatch({ control, name: "enable_deepseek_services" })
     const localEnabled = useWatch({ control, name: "enable_local_llm" })
     const localProvider = useWatch({ control, name: "local_llm_provider" })
     const localLLMUrl = useWatch({ control, name: "local_llm_api_url" })
@@ -149,6 +150,25 @@ const AISettingsFields = () => {
                     ) : null}
                     <Separator />
 
+                    {/* DeepSeek */}
+                    <SwitchFormField
+                        name="enable_deepseek_services"
+                        label={_("Enable DeepSeek")}
+                        formDescription={_("DeepSeek is operated from China and prompts are processed on its infrastructure. Consider what document data your agents will send before enabling this.")}
+                    />
+                    {deepseekEnabled ? (
+                        <div className="flex flex-col gap-4 pl-1">
+                            <DataField
+                                name="deepseek_api_key"
+                                label={_("DeepSeek API Key")}
+                                isRequired
+                                rules={{ required: _("Please enter your DeepSeek API key") }}
+                                inputProps={{ type: "password", placeholder: "sk-****************", autoComplete: "off" }}
+                            />
+                        </div>
+                    ) : null}
+                    <Separator />
+
                     {/* Local LLM */}
                     <SwitchFormField
                         name="enable_local_llm"
@@ -211,7 +231,7 @@ const AISettingsFields = () => {
     )
 }
 
-/** AI Settings — configure AI providers (OpenAI / Anthropic / Gemini / local LLM); provider sections show only when AI integration is on. */
+/** AI Settings — configure AI providers (OpenAI / Anthropic / Gemini / DeepSeek / local LLM); provider sections show only when AI integration is on. */
 export const AISettings = () => (
     <AdminSettingsForm
         title={_("AI Settings")}

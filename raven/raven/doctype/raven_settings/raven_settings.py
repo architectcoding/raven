@@ -40,6 +40,8 @@ class RavenSettings(Document):
 		oauth_client: DF.Link | None
 		anthropic_api_key: DF.Password | None
 		enable_gemini_services: DF.Check
+		deepseek_api_key: DF.Password | None
+		enable_deepseek_services: DF.Check
 		gemini_api_key: DF.Password | None
 		enable_anthropic_services: DF.Check
 		openai_api_key: DF.Password | None

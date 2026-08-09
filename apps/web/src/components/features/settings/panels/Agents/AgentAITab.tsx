@@ -23,11 +23,13 @@ const AgentAITab = () => {
     const isLocalLLM = modelProvider === "Local LLM"
     const isAnthropic = modelProvider === "Anthropic"
     const isGemini = modelProvider === "Gemini"
+    const isDeepSeek = modelProvider === "DeepSeek"
     const isOpenAI = !modelProvider || modelProvider === "OpenAI"
 
     const hasOpenAI = ravenSettings?.enable_openai_services === 1
     const hasAnthropic = ravenSettings?.enable_anthropic_services === 1
     const hasGemini = ravenSettings?.enable_gemini_services === 1
+    const hasDeepSeek = ravenSettings?.enable_deepseek_services === 1
     const hasLocalLLM = ravenSettings?.enable_local_llm === 1
 
     return (
@@ -41,10 +43,10 @@ const AgentAITab = () => {
                 />
             )}
 
-            {isAiBot && !hasOpenAI && !hasAnthropic && !hasGemini && !hasLocalLLM ? (
+            {isAiBot && !hasOpenAI && !hasAnthropic && !hasGemini && !hasDeepSeek && !hasLocalLLM ? (
                 <Alert theme="red">
                     <AlertDescription>
-                        {_("No AI providers are configured. Please configure OpenAI, Anthropic, Gemini or Local LLM in AI Settings.")}
+                        {_("No AI providers are configured. Please configure OpenAI, Anthropic, Gemini, DeepSeek or Local LLM in AI Settings.")}
                     </AlertDescription>
                 </Alert>
             ) : (
@@ -92,7 +94,7 @@ const AgentAITab = () => {
                 </>
             )}
 
-            {(isLocalLLM || isAnthropic || isGemini) && (
+            {(isLocalLLM || isAnthropic || isGemini || isDeepSeek) && (
                 <Alert theme="blue">
                     <AlertDescription>
                         {_("File search and code interpreter are not available on this provider. They are OpenAI-hosted services with no equivalent elsewhere — the agent's Frappe document tools work as normal.")}

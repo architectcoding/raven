@@ -25,11 +25,14 @@ const ModelProviderSelector = () => {
     const hasOpenAI = ravenSettings?.enable_openai_services === 1
     const hasAnthropic = ravenSettings?.enable_anthropic_services === 1
     const hasGemini = ravenSettings?.enable_gemini_services === 1
+    const hasDeepSeek = ravenSettings?.enable_deepseek_services === 1
     const hasLocalLLM = ravenSettings?.enable_local_llm === 1
 
-    if (!hasOpenAI && !hasAnthropic && !hasGemini && !hasLocalLLM) return null
+    if (!hasOpenAI && !hasAnthropic && !hasGemini && !hasDeepSeek && !hasLocalLLM) return null
 
-    const fallbackProvider = hasOpenAI ? "OpenAI" : hasAnthropic ? "Anthropic" : hasGemini ? "Gemini" : "Local LLM"
+    const fallbackProvider = hasOpenAI
+        ? "OpenAI"
+        : hasAnthropic ? "Anthropic" : hasGemini ? "Gemini" : hasDeepSeek ? "DeepSeek" : "Local LLM"
 
     return (
         <FormField
@@ -54,6 +57,7 @@ const ModelProviderSelector = () => {
                                 {hasOpenAI && <SelectItem value="OpenAI">{_("OpenAI")}</SelectItem>}
                                 {hasAnthropic && <SelectItem value="Anthropic">{_("Anthropic (Claude)")}</SelectItem>}
                                 {hasGemini && <SelectItem value="Gemini">{_("Google Gemini")}</SelectItem>}
+                                {hasDeepSeek && <SelectItem value="DeepSeek">{_("DeepSeek")}</SelectItem>}
                                 {hasLocalLLM && <SelectItem value="Local LLM">{_("Local LLM")}</SelectItem>}
                             </SelectContent>
                         </Select>
@@ -94,6 +98,13 @@ const ModelSelector = () => {
         { revalidateOnFocus: false, revalidateIfStale: false }
     )
 
+    const { data: deepseekModels } = useFrappeGetCall<{ message: string[] }>(
+        "raven.api.ai_features.get_deepseek_available_models",
+        undefined,
+        isAiBot && modelProvider === "DeepSeek" ? undefined : null,
+        { revalidateOnFocus: false, revalidateIfStale: false }
+    )
+
     const { data: localModelData } = useFrappeGetCall<{ message: { success: boolean; models?: { id: string }[] } }>(
         "raven.api.ai_features.test_llm_configuration",
         { provider: "Local LLM", api_url: ravenSettings?.local_llm_api_url, local_llm_provider: ravenSettings?.local_llm_provider },
@@ -111,14 +122,18 @@ const ModelSelector = () => {
             ? anthropicModels?.message || []
             : modelProvider === "Gemini"
                 ? geminiModels?.message || []
-                : openaiModels?.message || []
+                : modelProvider === "DeepSeek"
+                    ? deepseekModels?.message || []
+                    : openaiModels?.message || []
     const defaultModel = modelProvider === "Local LLM"
         ? localModels[0] || ""
         : modelProvider === "Anthropic"
             ? "claude-opus-5"
             : modelProvider === "Gemini"
                 ? "gemini-flash-latest"
-                : "gpt-4o"
+                : modelProvider === "DeepSeek"
+                    ? "deepseek-chat"
+                    : "gpt-4o"
     const validModels = models.filter((model) => model && model.trim() !== "")
 
     return (
