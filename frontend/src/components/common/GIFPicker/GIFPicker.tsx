@@ -1,3 +1,20 @@
+/**
+ * ORPHANED — nothing renders this any more, and it cannot work as written.
+ *
+ * Google discontinued the Tenor API on 2026-06-30 and stopped issuing new keys
+ * on 2026-01-13, so every request below returns
+ * `403 "Tenor API is discontinued"`. That is not a configuration problem and no
+ * key fixes it: the button was removed from RightToolbarButtons.tsx and
+ * MobileActions/MobileInputActions.tsx rather than left visible and broken.
+ *
+ * Kept, not deleted, because reviving GIFs is a small change rather than a
+ * rewrite. Klipy (built by ex-Tenor staff) is close to a drop-in: swap the two
+ * endpoint constants below for api.klipy.com, take the key from a new Raven
+ * Settings field, and adjust the response mapping if their shape differs.
+ * Both surviving vendors — Klipy and Giphy — require displaying their branding
+ * and cap free keys at 100 calls/hour, which is the real decision to make
+ * before wiring this back up, not the code.
+ */
 import { useDebounce } from "@/hooks/useDebounce"
 import { Box, Flex, ScrollArea, TextField } from "@radix-ui/themes"
 import { useState } from "react"

@@ -5,7 +5,6 @@ import { ToolbarFileProps } from './Tiptap'
 import { Dialog, DropdownMenu, Flex, FlexProps, IconButton, Inset, Popover, Separator } from '@radix-ui/themes'
 import { Loader } from '@/components/common/Loader'
 import { Suspense, lazy } from 'react'
-import { HiOutlineGif } from "react-icons/hi2";
 import { IconButtonProps } from '@radix-ui/themes/dist/cjs/components/icon-button'
 import { useBoolean } from '@/hooks/useBoolean'
 import { MdOutlineBarChart } from 'react-icons/md'
@@ -18,7 +17,6 @@ import clsx from 'clsx'
 
 const EmojiPicker = lazy(() => import('@/components/common/EmojiPicker/EmojiPicker'))
 const CreatePollContent = lazy(() => import('@/components/feature/polls/CreatePoll'))
-const GIFPicker = lazy(() => import('@/components/common/GIFPicker/GIFPicker'))
 
 export type RightToolbarButtonsProps = {
     fileProps?: ToolbarFileProps,
@@ -36,6 +34,10 @@ export type RightToolbarButtonsProps = {
  * 4. Emoji picker
  * 5. File upload
  * 6. Send button
+ *
+ * The GIF button was removed here: Google shut the Tenor API down on
+ * 2026-06-30 and stopped issuing keys in January, so it could not work for any
+ * install. See the note at the top of common/GIFPicker/GIFPicker.tsx.
  * @param props
  * @returns
  */
@@ -54,7 +56,6 @@ export const RightToolbarButtons = ({ fileProps, channelID, isEdit, ...sendProps
             <Separator orientation='vertical' />
             <Flex gap='3' align='center'>
                 <EmojiPickerButton />
-                <GIFPickerButton />
                 {fileProps && <FilePickerButton fileProps={fileProps} />}
             </Flex>
             <Separator orientation='vertical' />
@@ -138,39 +139,6 @@ const EmojiPickerButton = () => {
             <Inset>
                 <Suspense fallback={<Loader />}>
                     <EmojiPicker onSelect={onSelect} allowCustomEmojis={false} />
-                </Suspense>
-            </Inset>
-        </Popover.Content>
-    </Popover.Root>
-}
-
-const GIFPickerButton = () => {
-
-    const { editor } = useCurrentEditor()
-
-    if (!editor) {
-        return null
-    }
-
-    return <Popover.Root>
-        <Popover.Trigger>
-            <IconButton
-                size='1'
-                variant='ghost'
-                className={DEFAULT_BUTTON_STYLE}
-                title='Add GIF'
-                // disabled
-                aria-label={"add GIF"}>
-                <HiOutlineGif {...ICON_PROPS} />
-            </IconButton>
-        </Popover.Trigger>
-        <Popover.Content>
-            <Inset>
-                <Suspense fallback={<Loader />}>
-                    {/* FIXME: 1. Handle 'HardBreak' coz it adds newline (empty); and if user doesn't write any text, then newline is added as text content.
-                               2. Also if you write first & then add GIF there's no 'HardBreak'.
-                    */}
-                    <GIFPicker onSelect={(gif) => editor.chain().focus().setImage({ src: gif.media_formats.gif.url }).setHardBreak().run()} />
                 </Suspense>
             </Inset>
         </Popover.Content>

@@ -78,9 +78,11 @@
    "label": "Integrations"
   },
   {
+   "description": "Google shut the Tenor API down on 2026-06-30 and stopped issuing keys in January 2026. This field is retained so existing values are not lost, but it is no longer read.",
    "fieldname": "tenor_api_key",
    "fieldtype": "Data",
-   "label": "Tenor API Key",
+   "hidden": 1,
+   "label": "Tenor API Key (discontinued)",
    "length": 320,
    "permlevel": 1
   },
