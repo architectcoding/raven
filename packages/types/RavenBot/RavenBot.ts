@@ -45,11 +45,13 @@ File search enables the assistant with knowledge from files that you upload. Onc
 	/**	Dynamic Instructions : Check - Dynamic Instructions allow you to embed Jinja tags in your instruction to the bot. Hence the instruction would be different based on the user who is calling the bot or the data in your system. These instructions are computed every time the bot is called. Check this if you want to embed things like Employee ID, Company Name etc in your instructions dynamically	*/
 	dynamic_instructions?: 0 | 1
 	/**	Model Provider : Select	*/
-	model_provider?: "OpenAI" | "Local LLM"
+	model_provider?: "OpenAI" | "Local LLM" | "Anthropic"
 	/**	Model : Data	*/
 	model?: string
 	/**	Reasoning Effort : Select	*/
-	reasoning_effort?: "low" | "medium" | "high"
+	reasoning_effort?: "low" | "medium" | "high" | "xhigh" | "max"
+	/**	Max Tokens : Int	*/
+	max_tokens?: number
 	/**	OpenAI Vector Store ID : Data	*/
 	openai_vector_store_id?: string
 	/**	Temperature : Float	*/

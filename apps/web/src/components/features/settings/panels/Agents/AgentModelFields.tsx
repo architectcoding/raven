@@ -23,16 +23,19 @@ const ModelProviderSelector = () => {
     if (!isAiBot) return null
 
     const hasOpenAI = ravenSettings?.enable_openai_services === 1
+    const hasAnthropic = ravenSettings?.enable_anthropic_services === 1
     const hasLocalLLM = ravenSettings?.enable_local_llm === 1
 
-    if (!hasOpenAI && !hasLocalLLM) return null
+    if (!hasOpenAI && !hasAnthropic && !hasLocalLLM) return null
+
+    const fallbackProvider = hasOpenAI ? "OpenAI" : hasAnthropic ? "Anthropic" : "Local LLM"
 
     return (
         <FormField
             control={control}
             name="model_provider"
             rules={{ required: isAiBot ? _("Please select a model provider") : false }}
-            defaultValue={hasOpenAI ? "OpenAI" : "Local LLM"}
+            defaultValue={fallbackProvider}
             render={({ field }) => (
                 <FormItem>
                     <FormLabel>
@@ -40,7 +43,7 @@ const ModelProviderSelector = () => {
                         <FormRequiredIndicator />
                     </FormLabel>
                     <FormControl>
-                        <Select value={field.value || (hasOpenAI ? "OpenAI" : "Local LLM")} onValueChange={field.onChange}>
+                        <Select value={field.value || fallbackProvider} onValueChange={field.onChange}>
                             <FormControl>
                                 <SelectTrigger className="w-full">
                                     <SelectValue />
@@ -48,6 +51,7 @@ const ModelProviderSelector = () => {
                             </FormControl>
                             <SelectContent>
                                 {hasOpenAI && <SelectItem value="OpenAI">{_("OpenAI")}</SelectItem>}
+                                {hasAnthropic && <SelectItem value="Anthropic">{_("Anthropic (Claude)")}</SelectItem>}
                                 {hasLocalLLM && <SelectItem value="Local LLM">{_("Local LLM")}</SelectItem>}
                             </SelectContent>
                         </Select>
@@ -73,6 +77,14 @@ const ModelSelector = () => {
         { revalidateOnFocus: false, revalidateIfStale: false }
     )
 
+    // Asked of the API so a newly released Claude model is selectable without a new Raven build.
+    const { data: anthropicModels } = useFrappeGetCall<{ message: string[] }>(
+        "raven.api.ai_features.get_anthropic_available_models",
+        undefined,
+        isAiBot && modelProvider === "Anthropic" ? undefined : null,
+        { revalidateOnFocus: false, revalidateIfStale: false }
+    )
+
     const { data: localModelData } = useFrappeGetCall<{ message: { success: boolean; models?: { id: string }[] } }>(
         "raven.api.ai_features.test_llm_configuration",
         { provider: "Local LLM", api_url: ravenSettings?.local_llm_api_url, local_llm_provider: ravenSettings?.local_llm_provider },
@@ -84,8 +96,16 @@ const ModelSelector = () => {
 
     if (!isAiBot) return null
 
-    const models: string[] = modelProvider === "Local LLM" ? localModels : openaiModels?.message || []
-    const defaultModel = modelProvider === "Local LLM" ? localModels[0] || "" : "gpt-4o"
+    const models: string[] = modelProvider === "Local LLM"
+        ? localModels
+        : modelProvider === "Anthropic"
+            ? anthropicModels?.message || []
+            : openaiModels?.message || []
+    const defaultModel = modelProvider === "Local LLM"
+        ? localModels[0] || ""
+        : modelProvider === "Anthropic"
+            ? "claude-opus-5"
+            : "gpt-4o"
     const validModels = models.filter((model) => model && model.trim() !== "")
 
     return (
@@ -132,13 +152,15 @@ const ModelSelector = () => {
     )
 }
 
-/** Reasoning effort select — only for OpenAI o-series models; defaults to medium. */
+/** Reasoning effort select — OpenAI o-series models and every Claude model; defaults to medium. */
 const ReasoningEffortSelector = () => {
     const { control } = useFormContext<RavenBot>()
     const model = useWatch({ control, name: "model" })
     const isAiBot = useWatch({ control, name: "is_ai_bot" })
+    const isAnthropicProvider = useWatch({ control, name: "model_provider" }) === "Anthropic"
 
-    if (!isAiBot || !model || !model.startsWith("o")) return null
+    // OpenAI only exposes effort on its o-series; every Claude model takes it.
+    if (!isAiBot || !model || !(isAnthropicProvider || model.startsWith("o"))) return null
 
     return (
         <FormField
@@ -163,11 +185,15 @@ const ReasoningEffortSelector = () => {
                                 <SelectItem value="low">{_("Low")}</SelectItem>
                                 <SelectItem value="medium">{_("Medium")}</SelectItem>
                                 <SelectItem value="high">{_("High")}</SelectItem>
+                                {isAnthropicProvider && <SelectItem value="xhigh">{_("Extra High")}</SelectItem>}
+                                {isAnthropicProvider && <SelectItem value="max">{_("Max")}</SelectItem>}
                             </SelectContent>
                         </Select>
                     </FormControl>
                     <FormDescription>
-                        {_("The reasoning effort will be used to determine the depth of the reasoning process. This is only applicable for OpenAI's o-series models.")}
+                        {isAnthropicProvider
+                            ? _("How hard Claude thinks before answering. 'High' suits most work; 'Extra High' is the better default for tool-heavy agents.")
+                            : _("The reasoning effort will be used to determine the depth of the reasoning process. This is only applicable for OpenAI's o-series models.")}
                     </FormDescription>
                     <FormMessage />
                 </FormItem>

@@ -44,6 +44,10 @@ export interface RavenSettings{
 	google_project_id?: string
 	/**	Google Service Account JSON Key : Password	*/
 	google_service_account_json_key?: string
+	/**	Enable Anthropic (Claude) : Check	*/
+	enable_anthropic_services?: 0 | 1
+	/**	Anthropic API Key : Password	*/
+	anthropic_api_key?: string
 	/**	Automatically Create a Channel for each Department : Check - If checked, a channel will be created in Raven for each department and employees will be synced with Raven Users.	*/
 	auto_create_department_channel?: 0 | 1
 	/**	Department Channel Type : Select	*/

@@ -51,7 +51,20 @@ class RavenAgentManager:
 		self._setup_tools()
 
 	def _setup_client(self):
-		"""Configure OpenAI client based on provider"""
+		"""Configure the model client based on provider"""
+		if self.bot_doc.model_provider == "Anthropic":
+			# Claude goes through its own provider rather than an OpenAI client:
+			# Raven always populates ModelSettings with temperature and top_p, and
+			# current Claude models reject both with a 400, so the request has to be
+			# built by something that never reads them.
+			from raven.ai.anthropic_client import get_anthropic_client
+			from raven.ai.anthropic_model import AnthropicProvider
+
+			client = get_anthropic_client()
+			self.provider = AnthropicProvider(client=client, bot_doc=self.bot_doc)
+			self.client = client
+			return
+
 		if self.bot_doc.model_provider == "Local LLM" and self.settings.enable_local_llm:
 			# Client for local LLM
 			if not self.settings.local_llm_api_url:
@@ -348,7 +361,10 @@ class RavenAgentManager:
 
 	def _filter_tools_for_provider(self) -> list[Tool]:
 		"""Filter tools based on the provider capabilities"""
-		if self.bot_doc.model_provider == "Local LLM":
+		# Anthropic is grouped with Local LLM here because the hosted tools below
+		# are OpenAI-side services, not a chat-completions capability — Claude has
+		# no equivalent, so passing them through would fail the request.
+		if self.bot_doc.model_provider in ("Local LLM", "Anthropic"):
 			# Filter out hosted tools that are not supported with ChatCompletions API
 			filtered_tools = []
 			hosted_tool_types = (
@@ -521,6 +537,12 @@ async def handle_ai_request_async(
 		except (TypeError, openai.NotFoundError) as e:
 			# Handle both TypeError and NotFoundError (404) with fallback
 			should_fallback = False
+
+			# The fallback below is a direct client.chat.completions.create() call.
+			# There is no such endpoint on Anthropic, so for Claude a failure has to
+			# surface as itself rather than be retried into a second, worse error.
+			if bot.model_provider == "Anthropic":
+				raise
 
 			if isinstance(e, TypeError) and "NoneType" in str(e) and "not iterable" in str(e):
 				should_fallback = True

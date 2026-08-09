@@ -67,6 +67,24 @@ def get_openai_available_models():
 
 
 @frappe.whitelist()
+def get_anthropic_available_models():
+	"""
+	API to get the available Anthropic models
+
+	Asked of the API rather than hardcoded, so a model released after this app
+	shipped is selectable without a code change.
+	"""
+	frappe.has_permission(doctype="Raven Bot", ptype="read", throw=True)
+	from raven.ai.anthropic_client import get_anthropic_models
+
+	try:
+		return [m["id"] for m in get_anthropic_models()]
+	except Exception as e:
+		frappe.log_error(f"Could not list Anthropic models: {e}", "Anthropic Models Error")
+		return []
+
+
+@frappe.whitelist()
 def test_llm_configuration(
 	provider: str = "OpenAI", api_url: str = None, local_llm_provider: str = None
 ):

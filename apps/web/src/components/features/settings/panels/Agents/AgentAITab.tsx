@@ -21,9 +21,11 @@ const AgentAITab = () => {
     const isAiBot = useWatch({ control, name: "is_ai_bot" })
 
     const isLocalLLM = modelProvider === "Local LLM"
+    const isAnthropic = modelProvider === "Anthropic"
     const isOpenAI = !modelProvider || modelProvider === "OpenAI"
 
     const hasOpenAI = ravenSettings?.enable_openai_services === 1
+    const hasAnthropic = ravenSettings?.enable_anthropic_services === 1
     const hasLocalLLM = ravenSettings?.enable_local_llm === 1
 
     return (
@@ -37,10 +39,10 @@ const AgentAITab = () => {
                 />
             )}
 
-            {isAiBot && !hasOpenAI && !hasLocalLLM ? (
+            {isAiBot && !hasOpenAI && !hasAnthropic && !hasLocalLLM ? (
                 <Alert theme="red">
                     <AlertDescription>
-                        {_("No AI providers are configured. Please configure OpenAI or Local LLM in AI Settings.")}
+                        {_("No AI providers are configured. Please configure OpenAI, Anthropic or Local LLM in AI Settings.")}
                     </AlertDescription>
                 </Alert>
             ) : (
@@ -50,7 +52,7 @@ const AgentAITab = () => {
                 </div>
             )}
 
-            {isOpenAI && <ReasoningEffortSelector />}
+            {(isOpenAI || isAnthropic) && <ReasoningEffortSelector />}
 
             <Separator />
 

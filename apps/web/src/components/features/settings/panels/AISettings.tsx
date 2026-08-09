@@ -22,6 +22,7 @@ const AISettingsFields = () => {
     const { control } = useFormContext<RavenSettings>()
     const aiEnabled = useWatch({ control, name: "enable_ai_integration" })
     const openaiEnabled = useWatch({ control, name: "enable_openai_services" })
+    const anthropicEnabled = useWatch({ control, name: "enable_anthropic_services" })
     const localEnabled = useWatch({ control, name: "enable_local_llm" })
     const localProvider = useWatch({ control, name: "local_llm_provider" })
     const localLLMUrl = useWatch({ control, name: "local_llm_api_url" })
@@ -109,6 +110,25 @@ const AISettingsFields = () => {
 
                     <Separator />
 
+                    {/* Anthropic */}
+                    <SwitchFormField
+                        name="enable_anthropic_services"
+                        label={_("Enable Anthropic (Claude)")}
+                        formDescription={_("Lets agents run on Claude. Bots choose their provider individually, so this can be enabled alongside OpenAI.")}
+                    />
+                    {anthropicEnabled ? (
+                        <div className="flex flex-col gap-4 pl-1">
+                            <DataField
+                                name="anthropic_api_key"
+                                label={_("Anthropic API Key")}
+                                isRequired
+                                rules={{ required: _("Please enter your Anthropic API key") }}
+                                inputProps={{ type: "password", placeholder: "sk-ant-****************", autoComplete: "off" }}
+                            />
+                        </div>
+                    ) : null}
+                    <Separator />
+
                     {/* Local LLM */}
                     <SwitchFormField
                         name="enable_local_llm"
@@ -171,7 +191,7 @@ const AISettingsFields = () => {
     )
 }
 
-/** AI Settings — configure AI providers (OpenAI / local LLM); provider sections show only when AI integration is on. */
+/** AI Settings — configure AI providers (OpenAI / Anthropic / local LLM); provider sections show only when AI integration is on. */
 export const AISettings = () => (
     <AdminSettingsForm
         title={_("AI Settings")}
