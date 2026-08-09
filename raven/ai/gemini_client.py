@@ -2,12 +2,13 @@ import frappe
 from frappe import _
 
 # Shown when the live model list can't be fetched, so the bot form's dropdown is
-# never empty. Deliberately short — it is a fallback, not a catalogue, and the
-# live list is what should normally populate the field.
+# never empty. Floating aliases only: Google retires pinned ids for new API keys
+# (a fresh key gets 404 "no longer available to new users" on gemini-2.5-flash),
+# so a hardcoded pinned id is a fallback that ages into a broken default.
 FALLBACK_MODELS = [
-	"gemini-2.5-pro",
-	"gemini-2.5-flash",
-	"gemini-2.5-flash-lite",
+	"gemini-flash-latest",
+	"gemini-flash-lite-latest",
+	"gemini-pro-latest",
 ]
 
 
@@ -65,12 +66,19 @@ def get_gemini_models() -> list[str]:
 
 	usable = []
 	for model in models:
-		# "models/gemini-2.5-flash" -> "gemini-2.5-flash"
+		# "models/gemini-flash-latest" -> "gemini-flash-latest"
 		name = (model.get("name") or "").removeprefix("models/")
 		if not name.startswith("gemini-"):
 			continue
 		if "generateContent" not in (model.get("supportedGenerationMethods") or []):
 			continue
 		usable.append(name)
+
+	# Floating aliases first. This list is not a promise that every entry works:
+	# Google keeps returning pinned ids that then 404 for newer API keys with
+	# "no longer available to new users". The aliases always resolve to something
+	# current, so surfacing them at the top means the first thing a person picks
+	# is the thing most likely to answer.
+	usable.sort(key=lambda name: (not name.endswith("-latest"), name))
 
 	return usable or FALLBACK_MODELS
