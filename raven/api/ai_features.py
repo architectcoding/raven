@@ -98,6 +98,17 @@ def get_gemini_available_models():
 
 
 @frappe.whitelist()
+def get_deepseek_available_models():
+	"""
+	API to get the available DeepSeek models
+	"""
+	frappe.has_permission(doctype="Raven Bot", ptype="read", throw=True)
+	from raven.ai.deepseek_client import get_deepseek_models
+
+	return get_deepseek_models()
+
+
+@frappe.whitelist()
 def test_llm_configuration(
 	provider: str = "OpenAI", api_url: str = None, local_llm_provider: str = None
 ):

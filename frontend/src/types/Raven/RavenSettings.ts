@@ -35,6 +35,10 @@ export interface RavenSettings{
 	enable_gemini_services?: 0 | 1
 	/**	Gemini API Key : Password	*/
 	gemini_api_key?: string
+	/**	Enable DeepSeek : Check	*/
+	enable_deepseek_services?: 0 | 1
+	/**	DeepSeek API Key : Password	*/
+	deepseek_api_key?: string
 	/**	Enable Local LLM : Check	*/
 	enable_local_llm?: 0 | 1
 	/**	Local LLM Provider : Select	*/

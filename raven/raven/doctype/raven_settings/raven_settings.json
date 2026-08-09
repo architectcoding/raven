@@ -23,6 +23,8 @@
   "anthropic_api_key",
   "enable_gemini_services",
   "gemini_api_key",
+  "enable_deepseek_services",
+  "deepseek_api_key",
   "column_break_occp",
   "enable_local_llm",
   "local_llm_provider",
@@ -180,6 +182,18 @@
    "fieldtype": "Password",
    "label": "Gemini API Key",
    "description": "An AI Studio API key. Not the same credential as the Google service account used for Vision and Document AI below."
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_deepseek_services",
+   "fieldtype": "Check",
+   "label": "Enable DeepSeek"
+  },
+  {
+   "depends_on": "enable_deepseek_services",
+   "fieldname": "deepseek_api_key",
+   "fieldtype": "Password",
+   "label": "DeepSeek API Key"
   },
   {
    "fieldname": "column_break_occp",

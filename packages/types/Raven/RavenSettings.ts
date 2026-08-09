@@ -33,6 +33,10 @@ export interface RavenSettings{
 	enable_gemini_services?: 0 | 1
 	/**	Gemini API Key : Password	*/
 	gemini_api_key?: string
+	/**	Enable DeepSeek : Check	*/
+	enable_deepseek_services?: 0 | 1
+	/**	DeepSeek API Key : Password	*/
+	deepseek_api_key?: string
 	/**	Automatically Create a Channel for each Department : Check - If checked, a channel will be created in Raven for each department and employees will be synced with Raven Users.	*/
 	auto_create_department_channel?: 0 | 1
 	/**	Department Channel Type : Select	*/

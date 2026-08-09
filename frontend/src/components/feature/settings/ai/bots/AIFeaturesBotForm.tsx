@@ -241,8 +241,9 @@ const ModelProviderSelector = () => {
     const hasLocalLLM = ravenSettings?.enable_local_llm
     const hasAnthropic = ravenSettings?.enable_anthropic_services
     const hasGemini = ravenSettings?.enable_gemini_services
+    const hasDeepSeek = ravenSettings?.enable_deepseek_services
 
-    if (!hasOpenAI && !hasLocalLLM && !hasAnthropic && !hasGemini) {
+    if (!hasOpenAI && !hasLocalLLM && !hasAnthropic && !hasGemini && !hasDeepSeek) {
         return (
             <Callout.Root color="red" size="1">
                 <Callout.Icon>
@@ -274,6 +275,7 @@ const ModelProviderSelector = () => {
                                 {hasOpenAI ? <Select.Item value='OpenAI'>OpenAI</Select.Item> : null}
                                 {hasAnthropic ? <Select.Item value='Anthropic'>Anthropic (Claude)</Select.Item> : null}
                                 {hasGemini ? <Select.Item value='Gemini'>Google Gemini</Select.Item> : null}
+                                {hasDeepSeek ? <Select.Item value='DeepSeek'>DeepSeek</Select.Item> : null}
                                 {hasLocalLLM ? <Select.Item value='Local LLM'>Local LLM</Select.Item> : null}
                             </Select.Content>
                         </Select.Root>
@@ -309,6 +311,12 @@ const ModelSelector = () => {
         revalidateIfStale: false
     })
 
+    // Fetch DeepSeek models
+    const { data: deepseekModels } = useFrappeGetCall('raven.api.ai_features.get_deepseek_available_models', undefined, modelProvider === 'DeepSeek' ? undefined : null, {
+        revalidateOnFocus: false,
+        revalidateIfStale: false
+    })
+
     // Fetch Local LLM models
     const { data: localModelData } = useFrappeGetCall<{
         message: {
@@ -334,7 +342,9 @@ const ModelSelector = () => {
             ? (anthropicModels?.message || [])
             : modelProvider === 'Gemini'
                 ? (geminiModels?.message || [])
-                : openaiModels?.message || []
+                : modelProvider === 'DeepSeek'
+                    ? (deepseekModels?.message || [])
+                    : openaiModels?.message || []
     const defaultModel = modelProvider === 'Local LLM'
         ? (localModels[0] || 'default-model')
         : modelProvider === 'Anthropic'

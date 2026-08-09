@@ -111,6 +111,7 @@ const AISettings = () => {
                                     <Tabs.Trigger value="openai">OpenAI</Tabs.Trigger>
                                     <Tabs.Trigger value="anthropic">Anthropic</Tabs.Trigger>
                                     <Tabs.Trigger value="gemini">Gemini</Tabs.Trigger>
+                                    <Tabs.Trigger value="deepseek">DeepSeek</Tabs.Trigger>
                                     <Tabs.Trigger value="local">Local LLM</Tabs.Trigger>
                                 </Tabs.List>
 
@@ -127,6 +128,10 @@ const AISettings = () => {
                                         <GeminiSection />
                                     </Tabs.Content>
 
+                                    <Tabs.Content value="deepseek">
+                                        <DeepSeekSection />
+                                    </Tabs.Content>
+
                                     <Tabs.Content value="local">
                                         <LocalLLMSection />
                                     </Tabs.Content>
@@ -139,6 +144,57 @@ const AISettings = () => {
         </PageContainer>
     )
 }
+const DeepSeekSection = () => {
+
+    const { watch, control, register, formState: { errors } } = useFormContext<RavenSettings>()
+
+    const enableDeepSeek = watch('enable_deepseek_services')
+
+    return (
+        <Flex direction="column" gap="4">
+            <Flex direction={'column'} gap='2'>
+                <Text as="label" size="2">
+                    <Flex gap="2">
+                        <Controller
+                            control={control}
+                            name='enable_deepseek_services'
+                            render={({ field }) => (
+                                <Checkbox
+                                    checked={field.value ? true : false}
+                                    name={field.name}
+                                    disabled={field.disabled}
+                                    onCheckedChange={(v) => field.onChange(v ? 1 : 0)}
+                                />
+                            )} />
+                        Enable DeepSeek
+                    </Flex>
+                </Text>
+                <HelperText>
+                    DeepSeek is operated from China and prompts are processed on its infrastructure. Consider what document data your agents will send before enabling this.
+                </HelperText>
+            </Flex>
+
+            {enableDeepSeek ? (
+                <Box>
+                    <Label htmlFor='deepseek_api_key' isRequired>DeepSeek API Key</Label>
+                    <TextField.Root
+                        className={'w-48 sm:w-96'}
+                        id='deepseek_api_key'
+                        autoComplete='off'
+                        type='password'
+                        placeholder='sk-****************'
+                        {...register('deepseek_api_key', {
+                            required: enableDeepSeek ? "Please enter your DeepSeek API key" : false
+                        })}
+                        aria-invalid={errors.deepseek_api_key ? 'true' : 'false'}
+                    />
+                    {errors?.deepseek_api_key && <ErrorText>{errors.deepseek_api_key?.message}</ErrorText>}
+                </Box>
+            ) : null}
+        </Flex>
+    )
+}
+
 const GeminiSection = () => {
 
     const { watch, control, register, formState: { errors } } = useFormContext<RavenSettings>()
