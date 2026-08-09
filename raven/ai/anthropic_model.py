@@ -49,6 +49,17 @@ DEFAULT_MAX_TOKENS = 16000
 # from its OpenAI days; xhigh and max are Claude-only additions.
 VALID_EFFORTS = {"low", "medium", "high", "xhigh", "max"}
 
+# Model families that reject `effort` rather than ignoring it. Matched as
+# substrings so a future dated id in the same family is covered. Expressed as a
+# denylist because the models that DO take it are the growing set — a new Opus or
+# Sonnet should work on the day it ships without editing this file.
+NO_EFFORT_SUPPORT = ("haiku", "sonnet-4-5")
+
+
+def model_supports_effort(model: str) -> bool:
+	name = (model or "").lower()
+	return not any(marker in name for marker in NO_EFFORT_SUPPORT)
+
 
 class AnthropicChatMessage(ChatCompletionMessage):
 	"""Carries Claude's thinking blocks through the ChatCompletions interchange.
@@ -81,7 +92,18 @@ class AnthropicModel(Model):
 	@property
 	def _effort(self) -> str | None:
 		value = (getattr(self.bot_doc, "reasoning_effort", None) or "").strip().lower()
-		return value if value in VALID_EFFORTS else None
+		if value not in VALID_EFFORTS:
+			return None
+
+		# Not every Claude model takes `effort` — Haiku 4.5 and Sonnet 4.5 reject
+		# it outright, so sending it because the bot happens to have the field set
+		# would 400 every request on those models rather than degrade. The field is
+		# shared with the OpenAI provider, so it can easily be populated on a bot
+		# that later switches to Haiku.
+		if not model_supports_effort(self.model):
+			return None
+
+		return value
 
 	def _build_kwargs(
 		self,
