@@ -22,9 +22,13 @@ from __future__ import annotations
 from agents.extensions.models.litellm_model import LitellmModel
 from agents.models.interface import Model, ModelProvider
 
-# Flash is the sensible default: cheapest, fast, and comfortably good enough for
-# the document lookups Raven bots actually do.
-DEFAULT_MODEL = "gemini-2.5-flash"
+# The floating alias, not a pinned version. Google retires pinned ids for *new*
+# API keys while still listing them from models.list — a fresh key asking for
+# `gemini-2.5-flash` gets 404 "no longer available to new users" even though the
+# list said it existed. `gemini-flash-latest` always resolves to a current Flash,
+# which is also the tier that matters here: cheap and fast is the right shape for
+# document lookups.
+DEFAULT_MODEL = "gemini-flash-latest"
 
 # LiteLLM routes on this prefix — it is what selects the Gemini path and, with
 # it, the quirk handling described above.

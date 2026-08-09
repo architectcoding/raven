@@ -117,7 +117,7 @@ const ModelSelector = () => {
         : modelProvider === "Anthropic"
             ? "claude-opus-5"
             : modelProvider === "Gemini"
-                ? "gemini-2.5-flash"
+                ? "gemini-flash-latest"
                 : "gpt-4o"
     const validModels = models.filter((model) => model && model.trim() !== "")
 
