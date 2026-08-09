@@ -31,8 +31,6 @@ def boot_session(bootinfo):
 	if blocked_domains:
 		bootinfo.link_preview_blocked_domains = blocked_domains
 
-	tenor_api_key = raven_settings.tenor_api_key
-
 	document_link_override = frappe.get_hooks("raven_document_link_override")
 
 	if (
@@ -54,10 +52,11 @@ def boot_session(bootinfo):
 	if document_link_override and len(document_link_override) > 0:
 		bootinfo.raven_document_link_override = True
 
-	if tenor_api_key:
-		bootinfo.tenor_api_key = tenor_api_key
-	else:
-		bootinfo.tenor_api_key = "AIzaSyAWkuhLwbMxOlvn_o5fxBke1grUZ7F3ma4"  # should we remove this?
+	# tenor_api_key is deliberately no longer sent to the client. Google shut the
+	# Tenor API down on 2026-06-30 and stopped issuing keys in January 2026, so
+	# neither a configured key nor the public fallback that used to live here can
+	# work — it was a hardcoded credential for a dead service on every page load.
+	# The Raven Settings field is kept (hidden) so existing values are not lost.
 
 	bootinfo.chat_style = chat_style if chat_style else "Simple"
 	bootinfo.raven_time_format = time_format if time_format else "12-hour"
