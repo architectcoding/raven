@@ -13,7 +13,8 @@ import { SetCustomStatusModal } from '@/components/feature/userSettings/CustomSt
 import PushNotificationToggle from '@/components/feature/userSettings/PushNotifications/PushNotificationToggle'
 import { __ } from '@/utils/translations'
 import { Stack } from '../Stack'
-import { LuNavigation, LuSettings } from 'react-icons/lu'
+import { LuLayoutGrid, LuNavigation, LuSettings } from 'react-icons/lu'
+import { AppSwitcherMenu, hasAppSwitcher } from '../AppSwitcher'
 
 export const SidebarFooter = () => {
 
@@ -28,6 +29,13 @@ export const SidebarFooter = () => {
     const navigate = useNavigate()
 
     return <Stack className='mx-auto py-0' align='center' gap='2'>
+        {hasAppSwitcher() && <Box>
+            <AppSwitcherMenu side='right' align='end'>
+                <IconButton aria-label={__("Switch app")} title={__("Switch app")} size='3' color='gray' variant='ghost'>
+                    <LuLayoutGrid size='18' />
+                </IconButton>
+            </AppSwitcherMenu>
+        </Box>}
         <Box>
             <Tooltip content="Workspace Explorer" side='right'>
                 <IconButton aria-label='Workspace Explorer' size='3' color='gray' variant='ghost' onClick={() => navigate('/workspace-explorer')}>

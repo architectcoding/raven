@@ -1,5 +1,5 @@
 import useFetchWorkspaces, { WorkspaceFields } from '@/hooks/fetchers/useFetchWorkspaces'
-import { Avatar, Card, Grid, Heading, Text } from '@radix-ui/themes'
+import { Avatar, Button, Card, Grid, Heading, Text } from '@radix-ui/themes'
 import { Link } from 'react-router-dom'
 import { HStack, Stack } from './Stack'
 import { useMemo } from 'react'
@@ -10,6 +10,9 @@ import { getErrorMessage } from './AlertBanner/ErrorBanner'
 import { useSetAtom } from 'jotai'
 import { lastChannelAtom, lastWorkspaceAtom } from '@/utils/lastVisitedAtoms'
 import { useResetAtom } from 'jotai/utils'
+import { AppSwitcherMenu, hasAppSwitcher } from './AppSwitcher'
+import { LuLayoutGrid } from 'react-icons/lu'
+import { __ } from '@/utils/translations'
 
 const WorkspaceSwitcherGrid = () => {
 
@@ -35,10 +38,20 @@ const WorkspaceSwitcherGrid = () => {
     return (
         <Stack className='sm:p-28 py-16 sm:px-8 px-4 gap-16 animate-fadein'>
             <div className='container flex mx-auto flex-col gap-5 max-w-screen-lg'>
-                <Stack gap='1'>
-                    <Heading className='not-cal' size='4'>My Workspaces</Heading>
-                    <Text size='2' color='gray' weight='medium'>Switch between workspaces that you are a member of.</Text>
-                </Stack>
+                <HStack justify='between' align='start' gap='3'>
+                    <Stack gap='1'>
+                        <Heading className='not-cal' size='4'>My Workspaces</Heading>
+                        <Text size='2' color='gray' weight='medium'>Switch between workspaces that you are a member of.</Text>
+                    </Stack>
+                    {/* The first screen on a phone has no header: the way back out. */}
+                    {hasAppSwitcher() && (
+                        <AppSwitcherMenu align='end'>
+                            <Button variant='soft' color='gray' className='shrink-0'>
+                                <LuLayoutGrid size='16' /> {__("Apps")}
+                            </Button>
+                        </AppSwitcherMenu>
+                    )}
+                </HStack>
                 <Grid columns={{
                     sm: '1',
                     md: '3',

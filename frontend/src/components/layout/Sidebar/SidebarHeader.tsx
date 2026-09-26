@@ -9,6 +9,8 @@ import { HStack } from '../Stack'
 import { getKeyboardMetaKeyString } from '@/utils/layout/keyboardKey'
 import { useIsDesktop } from '@/hooks/useMediaQuery'
 import MentionsButton from './MentionsButton'
+import { AppSwitcherMenu, hasAppSwitcher } from '../AppSwitcher'
+import { BiChevronDown } from 'react-icons/bi'
 
 export const SidebarHeader = () => {
 
@@ -38,7 +40,18 @@ export const SidebarHeader = () => {
                 align='center'
                 pt='1'
                 height='48px'>
-                <Text as='span' size='6' className='cal-sans pl-1'>raven</Text>
+                {/* The wordmark doubles as the app switcher where the site's suite
+                    answers raven_app_switcher: the way back out of Raven. */}
+                {hasAppSwitcher() ? (
+                    <AppSwitcherMenu>
+                        <button type='button' aria-label={__("Switch app")} className='flex items-center gap-1 pl-1 bg-transparent'>
+                            <Text as='span' size='6' className='cal-sans'>raven</Text>
+                            <BiChevronDown className='text-gray-10' size='20' />
+                        </button>
+                    </AppSwitcherMenu>
+                ) : (
+                    <Text as='span' size='6' className='cal-sans pl-1'>raven</Text>
+                )}
                 <Flex align='center' gap='4' className='pr-1 sm:pr-0'>
                     <MentionsButton />
                     <SearchButton />
