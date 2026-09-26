@@ -13,7 +13,7 @@ import { useUnreadThreadsCount } from "@stores/threads/useUnreadThreads"
 import _ from "@lib/translate"
 import { cn } from "@lib/utils"
 import { useAtom, useSetAtom } from "jotai"
-import { BellIcon, BookmarkIcon, CalendarClockIcon, MessageSquareTextIcon, MoreHorizontalIcon, SearchIcon, UsersIcon } from "lucide-react"
+import { BellIcon, BookmarkIcon, CalendarClockIcon, LayoutGridIcon, MessageSquareTextIcon, MoreHorizontalIcon, SearchIcon, UsersIcon } from "lucide-react"
 import { NavLink } from "react-router"
 import { settingsDialogOpenTab } from "@components/features/settings/settingsDialogAtom"
 import { useMemo } from "react"
@@ -24,6 +24,7 @@ import { useFrappeUpdateDoc } from "frappe-react-sdk"
 import useCurrentRavenUser from "@raven/lib/hooks/useCurrentRavenUser"
 import ScheduledMessagesDialog from "@components/features/schedule-send/ScheduledMessagesDialog"
 import { scheduledMessagesDialogOpenAtom, useScheduledMessagesCount } from "@components/features/schedule-send/useScheduledMessages"
+import { AppSwitcherMenu, hasAppSwitcher } from "@components/layout/AppSwitcher"
 
 /**
  * Dropping a drag makes the browser fire ONE click on whatever ends up under
@@ -77,6 +78,7 @@ const PrimarySidebar = () => {
                     </div>
                     <ScheduledMessagesButton />
                     <LaterLink />
+                    <AppSwitcherButton />
                     <NavUserMenu />
                 </div>
             </div>
@@ -106,6 +108,20 @@ const SearchButton = () => {
         </TooltipContent>
 
     </Tooltip>
+}
+
+/** The way back to the site's other apps — drawn only where a suite answers raven_app_switcher. */
+const AppSwitcherButton = () => {
+    if (!hasAppSwitcher()) return null
+    return (
+        <AppSwitcherMenu side="right" align="end">
+            <button type="button" aria-label={_("Switch app")}>
+                <IconBox title={_("Switch app")}>
+                    <LayoutGridIcon />
+                </IconBox>
+            </button>
+        </AppSwitcherMenu>
+    )
 }
 
 const ScheduledMessagesButton = () => {

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { useSetAtom } from "jotai"
 import { NavLink, useMatch, useNavigate, useParams } from "react-router-dom"
 import { useHotkeys } from "react-hotkeys-hook"
-import { Check, ChevronDown, ChevronRight, Hash, PencilLine, Star } from "lucide-react"
+import { Check, ChevronDown, ChevronRight, Hash, LayoutGridIcon, PencilLine, Star } from "lucide-react"
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso"
 import { useLocalStorage } from "usehooks-ts"
 import { useChannelUnread, useGroupUnreadCount, useWorkspaceUnread } from "@stores/unread/useChannelUnread"
@@ -26,6 +26,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@components/ui/avatar"
 import { ChannelIcon } from "@components/common/ChannelIcon/ChannelIcon"
 import { CustomizeSidebarButton } from "@components/features/channel/CustomizeSidebar/CustomizeSidebarButton"
 import { MobileSearchButton } from "@components/features/header/QuickSearch/SearchButton"
+import { AppSwitcherMenu, hasAppSwitcher } from "@components/layout/AppSwitcher"
 import { useWorkspaces, type WorkspaceFields } from "@hooks/useWorkspaces"
 import { workspacesDrawerAtom } from "@components/features/header/HomeWorkspacesDrawer"
 import { lastChannelAtom, lastWorkspaceAtom } from "@utils/lastVisitedAtoms"
@@ -136,6 +137,16 @@ export function ChannelSidebar() {
                     <span className="md:hidden">
                         <MobileSearchButton />
                     </span>
+                    {/* The first screen on a phone: the way back out to the suite. */}
+                    {hasAppSwitcher() && (
+                        <span className="md:hidden">
+                            <AppSwitcherMenu align="end">
+                                <Button variant="ghost" size="lg" isIconButton aria-label={_("Switch app")}>
+                                    <LayoutGridIcon />
+                                </Button>
+                            </AppSwitcherMenu>
+                        </span>
+                    )}
                 </div>
             </div>
 

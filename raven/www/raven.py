@@ -6,6 +6,8 @@ import frappe.sessions
 from frappe import _
 from frappe.utils.telemetry import capture
 
+from raven.api.app_switcher import has_provider as has_app_switcher
+
 no_cache = 1
 
 SCRIPT_TAG_PATTERN = re.compile(r"\<script[^<]*\</script\>")
@@ -24,6 +26,11 @@ def get_context(context):
 			boot = frappe.sessions.get()
 		except Exception as e:
 			raise frappe.SessionBootFailed from e
+
+	# The header/rail app switcher shows only where another app answers the
+	# raven_app_switcher hook (api/app_switcher.py). Set before boot is
+	# serialised below: keys added after that never reach the client.
+	boot["has_app_switcher"] = has_app_switcher()
 
 	boot_json = frappe.as_json(boot, indent=None, separators=(",", ":"))
 	boot_json = SCRIPT_TAG_PATTERN.sub("", boot_json)
@@ -85,6 +92,9 @@ def get_boot():
 		raise frappe.SessionBootFailed from e
 
 	boot["push_relay_server_url"] = frappe.conf.get("push_relay_server_url")
+	# The header/rail app switcher shows only where another app answers the
+	# raven_app_switcher hook (api/app_switcher.py).
+	boot["has_app_switcher"] = has_app_switcher()
 	boot_json = frappe.as_json(boot, indent=None, separators=(",", ":"))
 	boot_json = SCRIPT_TAG_PATTERN.sub("", boot_json)
 
